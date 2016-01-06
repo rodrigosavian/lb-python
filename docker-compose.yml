@@ -1,11 +1,14 @@
 app:
-  image: tutum/hello-world:latest
-  environment:
-    SERVICE_80_NAME: http
-    SERVICE_NAME: app
-    SERVICE_TAGS: production
+  build: ./compose/app/
+  links:
+  - redis 
   ports:
-  - "80"
+  - "5000"
+  command: /usr/local/bin/gunicorn -w 2 -b :80 app:app
+  env_file: .env
+
+redis:
+  image: redis
 
 lb:
   build: ./
@@ -25,7 +28,7 @@ consul:
 
 registrator:
   command: consul://consul:8500
-  image: progrium/registrator:latest
+  image: gliderlabs/registrator:latest
   links:
   - consul
   volumes:
